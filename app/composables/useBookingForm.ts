@@ -4,9 +4,9 @@ import {
   localDate,
   type BookingDraft
 } from '~/data/booking'
-import { packages } from '~/data/landing'
 
 export function useBookingForm() {
+  const { packages, methods, providers, sessions, status } = usePublicCatalog()
   // Personal/medical fields stay in memory; never write them to browser storage.
   const draft = useState<BookingDraft>('booking-draft', () => ({
     children: [createBookingChild(1)],
@@ -18,6 +18,45 @@ export function useBookingForm() {
     notes: '',
     consent: false
   }))
+  const catalogWarning = useState('booking-catalog-warning', () => '')
+  watch(
+    [
+      packages,
+      providers,
+      sessions,
+      () => draft.value,
+      () => draft.value.children.length
+    ],
+    () => {
+      if (status.value !== 'success') return
+      for (const child of draft.value.children) {
+        if (!child.packageId) child.packageId = packages.value[0]?.id ?? ''
+        else if (!packages.value.some((item) => item.id === child.packageId)) {
+          child.packageId = ''
+          catalogWarning.value =
+            'Salah satu paket tidak lagi tersedia. Silakan pilih kembali.'
+        }
+        const pkg = packages.value.find((item) => item.id === child.packageId)
+        if (
+          child.methodId !== 'clinic' &&
+          (child.methodId !== pkg?.methodId ||
+            !methods.value.some((item) => item.id === child.methodId))
+        )
+          child.methodId = 'clinic'
+      }
+      if (
+        draft.value.provider !== 'clinic' &&
+        !providers.value.some((item) => item.id === draft.value.provider)
+      ) {
+        draft.value.provider = 'clinic'
+        catalogWarning.value =
+          'Tenaga medis sebelumnya tidak tersedia. Pilihan dikembalikan ke rekomendasi klinik.'
+      }
+      if (!sessions.value.some((item) => item.name === draft.value.session))
+        draft.value.session = sessions.value[0]?.name ?? ''
+    },
+    { immediate: true }
+  )
   // Demo counters are local to this app session, not a production allocator.
   const sequences = useState<Record<string, number>>(
     'booking-demo-sequences',
@@ -40,6 +79,7 @@ export function useBookingForm() {
 
   function startNewBooking() {
     registration.value = ''
+    catalogWarning.value = ''
     originalDate.value = ''
     draft.value = {
       children: [createBookingChild(1)],
@@ -56,7 +96,8 @@ export function useBookingForm() {
     draft.value.children.reduce(
       (sum, child) =>
         sum +
-        (packages.find((item) => item.id === child.packageId)?.price ?? 0),
+        (packages.value.find((item) => item.id === child.packageId)?.price ??
+          0),
       0
     )
   )
@@ -103,6 +144,7 @@ export function useBookingForm() {
 
   return {
     draft,
+    catalogWarning,
     total,
     setQuantity,
     fillSampleData,

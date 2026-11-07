@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { packages } from '~/data/landing'
+const { packages, error, status, refresh } = usePublicCatalog()
 defineEmits<{ select: [id: string] }>()
 </script>
 <template>
@@ -8,13 +8,26 @@ defineEmits<{ select: [id: string] }>()
       <LandingSectionHeading
         eyebrow="PILIHAN UNTUK SETIAP KELUARGA"
         title="Perawatan tepat, hati lebih tenang."
-        description="Tiga pilihan paket untuk kebutuhan si kecil. Temukan yang paling sesuai untuk keluarga Anda."
+        description="Pilihan paket untuk kebutuhan si kecil. Temukan yang paling sesuai untuk keluarga Anda."
       />
       <span class="soft-tag">
         <UIcon name="i-lucide-wallet" />
         Bayar di tempat
       </span>
     </div>
+    <p v-if="status === 'pending'" class="data-note" role="status">
+      Memuat pilihan layanan…
+    </p>
+    <div v-else-if="error" class="data-note" role="alert">
+      Pilihan layanan belum dapat dimuat.
+      <button class="button button-outline" @click="refresh()">
+        Coba Lagi
+      </button>
+    </div>
+    <p v-else-if="!packages.length" class="data-note">
+      Belum ada paket yang tersedia. Silakan hubungi klinik untuk informasi
+      layanan.
+    </p>
     <div class="packages-grid">
       <LandingPackageCard
         v-for="item in packages"
@@ -25,8 +38,8 @@ defineEmits<{ select: [id: string] }>()
     </div>
     <p class="data-note">
       <UIcon name="i-lucide-info" />
-      Harga, benefit, dan durasi adalah data contoh. Metode dipilih terpisah dari
-      paket dan dikonfirmasi bersama klinik.
+      Nama dan harga paket mengikuti katalog terbaru klinik. Kesesuaian tindakan
+      serta durasi layanan dikonfirmasi bersama tenaga medis.
     </p>
     <div class="method-callout">
       <span class="benefit-icon"><UIcon name="i-lucide-stethoscope" /></span>

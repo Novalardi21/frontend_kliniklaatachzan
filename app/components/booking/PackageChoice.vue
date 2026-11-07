@@ -1,7 +1,22 @@
 <script setup lang="ts">
-import { methods, type BookingChild } from '~/data/booking'
-import { packages, formatRupiah } from '~/data/landing'
+import type { BookingChild } from '~/data/booking'
+import { formatRupiah } from '~/data/landing'
+const { packages, methods } = usePublicCatalog()
 const child = defineModel<BookingChild>({ required: true })
+const availableMethods = computed(() =>
+  methods.value.filter(
+    (method) =>
+      method.id === 'clinic' ||
+      method.id ===
+        packages.value.find((pkg) => pkg.id === child.value.packageId)?.methodId
+  )
+)
+watch(
+  () => child.value.packageId,
+  () => {
+    child.value.methodId = 'clinic'
+  }
+)
 defineProps<{ index: number; multiple: boolean }>()
 </script>
 
@@ -25,7 +40,7 @@ defineProps<{ index: number; multiple: boolean }>()
           :value="item.id"
         />
         <span class="booking-option-tag">
-          {{ item.featured ? 'KENYAMANAN LEBIH' : item.label }}
+          {{ item.label }}
         </span>
         <strong>Paket {{ item.name }}</strong>
         <span class="booking-option-price">{{ formatRupiah(item.price) }}</span>
@@ -50,11 +65,11 @@ defineProps<{ index: number; multiple: boolean }>()
     <div class="booking-methods">
       <h3>PILIH SPESIFIKASI METODE KLINIS</h3>
       <p>
-        Metode terpisah dari paket. Pilihan berikut merupakan contoh dan perlu
-        penilaian tenaga medis.
+        Spesifikasi mengikuti paket yang dipilih. Kesesuaian tindakan akan
+        dikonfirmasi oleh tenaga medis.
       </p>
       <label
-        v-for="method in methods"
+        v-for="method in availableMethods"
         :key="method.id"
         class="booking-method-option"
         :class="{ selected: child.methodId === method.id }"

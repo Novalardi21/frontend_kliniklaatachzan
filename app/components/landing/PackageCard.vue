@@ -17,7 +17,7 @@ defineEmits<{ select: [id: string] }>()
     <h3>{{ item.name }}</h3>
     <p class="package-description">{{ item.description }}</p>
     <div class="package-price">
-      <span>Contoh harga per anak</span>
+      <span>Harga per anak</span>
       <strong>{{ formatRupiah(item.price) }}</strong>
       <small>Bayar di tempat setelah layanan</small>
     </div>

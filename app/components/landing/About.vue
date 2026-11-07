@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { providers } from '~/data/landing'
+const { providers } = usePublicCatalog()
 </script>
 <template>
   <section id="tentang" class="section container">
@@ -7,14 +7,17 @@ import { providers } from '~/data/landing'
       <LandingSectionHeading
         eyebrow="KENALI LEBIH DEKAT"
         title="Pendamping untuk momen berani."
-        description="Pendekatan yang hangat dimulai dari saling mengenal. Berikut contoh tampilan profil tim klinik."
+        description="Pendekatan yang hangat dimulai dari saling mengenal. Kenali tim yang mendampingi keluarga Anda."
       />
-      <span class="soft-tag">Profil ilustrasi</span>
+      <span class="soft-tag">Tim klinik</span>
     </div>
+    <p v-if="!providers.length" class="data-note">
+      Informasi tenaga medis akan dikonfirmasi oleh klinik.
+    </p>
     <div class="providers-grid">
       <article
         v-for="provider in providers"
-        :key="provider.name"
+        :key="provider.id"
         class="provider-card"
       >
         <div class="provider-image">
@@ -32,7 +35,7 @@ import { providers } from '~/data/landing'
           <p>{{ provider.description }}</p>
           <div class="provider-footer">
             <UIcon name="i-lucide-stethoscope" />
-            <span>Profil contoh</span>
+            <span>Tenaga medis klinik</span>
             <UIcon name="i-lucide-arrow-up-right" />
           </div>
         </div>

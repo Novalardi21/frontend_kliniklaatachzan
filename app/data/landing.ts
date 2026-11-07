@@ -4,6 +4,7 @@ export interface KhitanPackage {
   name: string
   label: string
   description: string
+  methodId: string
   price: number
   duration: string
   icon: string
@@ -19,51 +20,48 @@ export const formatRupiah = (value: number) =>
 export const packages: KhitanPackage[] = [
   {
     id: 'reguler',
-    name: 'Reguler',
-    label: 'PERAWATAN ESENSIAL',
-    description: 'Pilihan sederhana untuk memulai momen berani si kecil.',
-    price: 1250000,
-    duration: '± 20–30 menit',
+    name: 'Bius Jarum & Jahitan',
+    label: 'PAKET 1 · DENGAN JAHITAN',
+    description: 'Paket khitan dengan bius jarum dan jahitan.',
+    methodId: 'needle-stitches',
+    price: 500000,
+    duration: 'Durasi dikonfirmasi klinik',
     icon: 'i-lucide-heart',
     benefits: [
-      'Konsultasi sebelum tindakan',
-      'Perlengkapan perawatan dasar',
-      '1 celana khitan',
-      'Kontrol setelah tindakan',
-      'Sertifikat keberanian anak'
+      'Bius menggunakan jarum',
+      'Tindakan dengan jahitan',
+      'Pembayaran di tempat'
     ]
   },
   {
     id: 'premium',
-    name: 'Premium',
-    label: 'KENYAMANAN LEBIH',
-    description: 'Pendampingan lebih lengkap untuk anak dan orang tua.',
-    price: 1850000,
-    duration: '± 15–30 menit',
+    name: 'Bius Jarum & Tanpa Jahitan',
+    label: 'PAKET 2 · TANPA JAHITAN',
+    description: 'Paket khitan dengan bius jarum, tanpa jahitan.',
+    methodId: 'needle-no-stitches',
+    price: 800000,
+    duration: 'Durasi dikonfirmasi klinik',
     icon: 'i-lucide-sparkles',
     featured: true,
     benefits: [
-      'Semua benefit paket Reguler',
-      'Perlengkapan perawatan tambahan',
-      '2 celana khitan',
-      'Pendampingan kontrol berkala',
-      'Bingkisan untuk si pemberani'
+      'Bius menggunakan jarum',
+      'Tindakan tanpa jahitan',
+      'Pembayaran di tempat'
     ]
   },
   {
     id: 'super-premium',
-    name: 'Super Premium',
-    label: 'PENDAMPINGAN MENYELURUH',
-    description: 'Perhatian ekstra, dari persiapan hingga masa perawatan.',
-    price: 2600000,
-    duration: '± 15–30 menit',
+    name: 'Bius Semprot (Tanpa Jarum) & Tanpa Jahitan',
+    label: 'PAKET 3 · BIUS SEMPROT',
+    description: 'Paket khitan dengan bius semprot tanpa jarum, tanpa jahitan.',
+    methodId: 'spray-no-stitches',
+    price: 1100000,
+    duration: 'Durasi dikonfirmasi klinik',
     icon: 'i-lucide-crown',
     benefits: [
-      'Semua benefit paket Premium',
-      'Perlengkapan perawatan lengkap',
-      '3 celana khitan',
-      'Pendampingan perawatan lanjutan',
-      'Bingkisan spesial untuk anak'
+      'Bius semprot tanpa jarum',
+      'Tindakan tanpa jahitan',
+      'Pembayaran di tempat'
     ]
   }
 ]
@@ -157,6 +155,6 @@ export const faqs = [
   {
     question: 'Bagaimana memilih metode khitan yang sesuai?',
     answer:
-      'Metode dipilih terpisah dari paket dan perlu dibicarakan dengan tenaga medis berdasarkan kondisi anak. Daftar metode serta kesesuaiannya akan ditentukan oleh klinik.'
+      'Spesifikasi bius dan jahitan mengikuti paket yang dipilih. Kesesuaian tindakan perlu dibicarakan dengan tenaga medis berdasarkan kondisi anak.'
   }
 ]

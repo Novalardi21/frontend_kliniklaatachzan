@@ -40,36 +40,32 @@ export const methods = [
   {
     id: 'clinic',
     name: 'Konsultasikan dengan klinik',
-    description:
-      'Tim medis membantu menentukan metode yang sesuai dengan kondisi anak.',
+    description: 'Konfirmasikan kesesuaian paket bersama tenaga medis.',
     icon: 'i-lucide-stethoscope'
   },
   {
-    id: 'sealer',
-    name: 'Metode Lem / Sealer',
-    description:
-      'Contoh pilihan metode. Kesesuaian tindakan dikonfirmasi tenaga medis.',
-    icon: 'i-lucide-droplet'
+    id: 'needle-stitches',
+    name: 'Bius Jarum & Jahitan',
+    description: 'Spesifikasi tindakan sesuai paket 1.',
+    icon: 'i-lucide-heart'
   },
   {
-    id: 'clamp',
-    name: 'Metode Klem / Cincin',
-    description:
-      'Contoh pilihan metode klem modern untuk didiskusikan bersama klinik.',
-    icon: 'i-lucide-circle-dot'
+    id: 'needle-no-stitches',
+    name: 'Bius Jarum & Tanpa Jahitan',
+    description: 'Spesifikasi tindakan sesuai paket 2.',
+    icon: 'i-lucide-sparkles'
   },
   {
-    id: 'cauter',
-    name: 'Metode Cauter',
-    description:
-      'Contoh pilihan metode cauter berdasarkan penilaian tenaga medis.',
-    icon: 'i-lucide-zap'
+    id: 'spray-no-stitches',
+    name: 'Bius Semprot (Tanpa Jarum) & Tanpa Jahitan',
+    description: 'Spesifikasi tindakan sesuai paket 3.',
+    icon: 'i-lucide-wind'
   }
 ]
 
 export const createBookingChild = (
   id: number,
-  packageId = 'premium'
+  packageId = ''
 ): BookingChild => ({
   id,
   name: '',

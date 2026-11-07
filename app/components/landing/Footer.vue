@@ -19,6 +19,7 @@
         <h3>Informasi</h3>
         <a href="/#kontak">Jadwal & Kontak</a>
         <a href="/#faq">Pertanyaan Umum</a>
+        <NuxtLink to="/admin/login">Portal Admin</NuxtLink>
         <a href="/#beranda">
           Kembali ke Atas
           <UIcon name="i-lucide-arrow-up-right" />
@@ -30,8 +31,8 @@
           Versi pratinjau
         </span>
         <p>
-          Seluruh harga, benefit, dan profil menggunakan data contoh untuk
-          demonstrasi.
+          Paket dan profil mengikuti katalog klinik. Pengajuan booking masih
+          berupa simulasi dan belum dikirim ke klinik.
         </p>
       </div>
     </div>

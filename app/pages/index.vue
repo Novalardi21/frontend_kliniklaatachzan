@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const catalog = usePublicCatalog()
+await catalog.ready
 const dialog = ref<'booking' | 'status' | null>(null)
 async function openBooking(packageId?: string) {
   await navigateTo({

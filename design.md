@@ -42,9 +42,9 @@ Gunakan progress stepper, tombol **Kembali** dan **Lanjutkan**, simpan draft sem
 **Data kesehatan tambahan opsional sesuai kebutuhan klinis:** alergi, riwayat penyakit, berat dan tinggi badan. Jangan mewajibkan unggah foto KIA kecuali benar-benar diperlukan dan memiliki dasar pemrosesan yang jelas.
 
 ### Langkah 3 — Paket dan metode khitan
-- Tiga card paket: **Reguler**, **Premium**, **Super Premium**.
+- Koreksi paket sesuai brosur klinik: **Bius Jarum & Jahitan — Rp500.000**, **Bius Jarum & Tanpa Jahitan — Rp800.000**, **Bius Semprot (Tanpa Jarum) & Tanpa Jahitan — Rp1.100.000** per anak. ID internal lama dipertahankan untuk kompatibilitas tautan.
 - Tiap card menampilkan harga, benefit, durasi estimasi, dan tombol pilih; semua nilai diambil dari data klinik.
-- Pilihan **metode khitan** ditampilkan terpisah dari paket; metode yang tersedia berasal dari data klinik.
+- Spesifikasi metode mengikuti paket pada brosur; pilihan pada formulir terbatas pada metode paket tersebut atau konsultasi dengan klinik. Durasi dan benefit tambahan tidak boleh diasumsikan dari data contoh lama.
 - Untuk banyak anak, jelaskan apakah paket dan metode berlaku per anak atau seragam untuk satu booking; default desain memungkinkan pilihan per anak.
 
 ### Langkah 4 — Pilih siapa yang menangani

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { sessions } from '~/data/landing'
+const { sessions } = usePublicCatalog()
 defineEmits<{ book: [] }>()
 </script>
 <template>

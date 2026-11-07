@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { packages, sessions, formatRupiah } from '~/data/landing'
+import { formatRupiah } from '~/data/landing'
+const { packages, sessions } = usePublicCatalog()
 const props = defineProps<{
   mode: 'booking' | 'status' | null
   packageId: string
@@ -14,7 +15,9 @@ const bookingCode = ref('')
 const statusSearched = ref(false)
 const minimumDate = ref('')
 const currentPackage = computed(
-  () => packages.find((item) => item.id === chosenPackage.value) ?? packages[0]!
+  () =>
+    packages.value.find((item) => item.id === chosenPackage.value) ??
+    packages.value[0]
 )
 let previousFocus: HTMLElement | null = null
 let previousOverflow = ''
@@ -118,7 +121,7 @@ onBeforeUnmount(() => {
           </label>
           <div class="demo-summary">
             <span>Contoh biaya per anak</span>
-            <strong>{{ formatRupiah(currentPackage.price) }}</strong>
+            <strong>{{ formatRupiah(currentPackage?.price ?? 0) }}</strong>
             <small>
               Metode dipilih terpisah. Jadwal perlu konfirmasi klinik.
             </small>
@@ -133,7 +136,7 @@ onBeforeUnmount(() => {
         <span class="result-icon"><UIcon name="i-lucide-circle-check" /></span>
         <p>
           Paket
-          <strong>{{ currentPackage.name }}</strong>
+          <strong>{{ currentPackage?.name ?? 'Paket belum dipilih' }}</strong>
           , tanggal
           <strong>
             {{

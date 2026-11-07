@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { methods, displayDate, type BookingDraft } from '~/data/booking'
-import { packages, providers, sessions, formatRupiah } from '~/data/landing'
+import { displayDate, type BookingDraft } from '~/data/booking'
+import { formatRupiah } from '~/data/landing'
+const { packages, methods, providers, sessions } = usePublicCatalog()
 const props = defineProps<{
+  submitting?: boolean
   draft: BookingDraft
   total: number
   draftSaved: boolean
@@ -11,10 +13,10 @@ const consent = defineModel<boolean>('consent', { required: true })
 const providerName = computed(() =>
   props.draft.provider === 'clinic'
     ? 'Ditentukan Klinik'
-    : providers.find((item) => item.name === props.draft.provider)?.name
+    : providers.value.find((item) => item.id === props.draft.provider)?.name
 )
 const selectedSession = computed(() =>
-  sessions.find((item) => item.name === props.draft.session)
+  sessions.value.find((item) => item.name === props.draft.session)
 )
 </script>
 
@@ -96,7 +98,11 @@ const selectedSession = computed(() =>
           dan mengonfirmasi kebenaran data yang diisi.
         </span>
       </label>
-      <button class="button button-primary booking-submit" type="submit">
+      <button
+        class="button button-primary booking-submit"
+        type="submit"
+        :disabled="submitting"
+      >
         <UIcon name="i-lucide-send" />
         Ajukan Booking Demo
       </button>
@@ -113,7 +119,8 @@ const selectedSession = computed(() =>
         menghapusnya.
       </p>
       <p class="booking-summary-footnote">
-        Harga contoh. Jadwal & tenaga medis menunggu konfirmasi klinik.
+        Harga mengikuti katalog klinik. Jadwal & tenaga medis menunggu
+        konfirmasi.
       </p>
     </section>
     <section class="booking-panel booking-after">
