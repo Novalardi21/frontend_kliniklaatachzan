@@ -23,19 +23,23 @@ url.password = encodeURIComponent(settings.dbPassword)
 url.pathname = `/${encodeURIComponent(settings.database)}`
 const client = new pg.Client({
   connectionString: url.toString(),
-  connectionTimeoutMillis: 5000
+  connectionTimeoutMillis: 20000
 })
+let step = 'menghubungkan ke PostgreSQL'
 try {
   await client.connect()
+  step = 'menyiapkan tabel login'
   const migration = await readFile(
     new URL('../../backend/database/005_auth.sql', import.meta.url),
     'utf8'
   )
   await client.query(migration)
+  step = 'memeriksa akun admin'
   const existing = await client.query(
     'SELECT email FROM clinic.users WHERE id = 1'
   )
   if (existing.rowCount === 0) {
+    step = 'membuat akun admin'
     const hash = await hashPassword(settings.password)
     await client.query(
       `INSERT INTO clinic.users(id,email,full_name,password_hash)
@@ -48,6 +52,7 @@ try {
   } else {
     console.log('Akun admin sudah ada; email dan password lama dipertahankan.')
   }
+  step = 'menyimpan konfigurasi .env lokal'
   const envPath = fileURLToPath(new URL('../.env', import.meta.url))
   let contents = ''
   try {
@@ -67,7 +72,7 @@ try {
 } catch (error) {
   // Jangan mencetak connection string atau isi request.
   console.error(
-    `Setup gagal: ${error.code ?? 'periksa koneksi database dan migrasi'}.`
+    `Setup gagal saat ${step}${error.code ? ` (${error.code})` : ''}.`
   )
   process.exitCode = 1
 } finally {

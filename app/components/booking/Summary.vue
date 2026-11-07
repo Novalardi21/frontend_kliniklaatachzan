@@ -74,7 +74,7 @@ const selectedSession = computed(() =>
           <span class="cost-included">Sesuai paket</span>
         </div>
         <div>
-          <span>Administrasi demo</span>
+          <span>Administrasi</span>
           <span class="cost-included">Rp 0</span>
         </div>
         <div class="booking-cost-total">
@@ -86,16 +86,15 @@ const selectedSession = computed(() =>
         <UIcon name="i-lucide-shield-check" />
         <p>
           <strong>Tanpa DP / Bayar di tempat</strong>
-          Opsi tunai, QRIS, atau transfer mengikuti fasilitas klinik. Demo ini
-          tidak meminta pembayaran.
+          Opsi tunai, QRIS, atau transfer mengikuti fasilitas klinik.
         </p>
       </div>
       <label class="booking-consent">
         <input v-model="consent" type="checkbox" required />
         <span>
           Saya telah membaca
-          <a href="#booking-privacy">keterangan privasi demo</a>
-          dan mengonfirmasi kebenaran data yang diisi.
+          <a href="#booking-privacy">keterangan penggunaan data</a>
+          , mengonfirmasi kebenaran data, dan setuju dihubungi lewat WhatsApp untuk pengajuan ini.
         </span>
       </label>
       <button
@@ -104,7 +103,7 @@ const selectedSession = computed(() =>
         :disabled="submitting"
       >
         <UIcon name="i-lucide-send" />
-        Ajukan Booking Demo
+        Kirim Pengajuan
       </button>
       <button
         class="button button-outline booking-save"
@@ -131,22 +130,19 @@ const selectedSession = computed(() =>
       <ol>
         <li>
           <span>1</span>
-          <p>Tinjau ringkasan dan buat pengajuan demo.</p>
+          <p>Tinjau ringkasan dan kirim pengajuan.</p>
         </li>
         <li>
           <span>2</span>
           <p>
-            Status contoh:
+            Status pengajuan
             <strong>Menunggu Konfirmasi Klinik</strong>
             .
           </p>
         </li>
         <li>
           <span>3</span>
-          <p>
-            Pada layanan aktif, klinik menghubungi wali untuk menyepakati jadwal
-            final.
-          </p>
+          <p>Klinik menghubungi wali untuk menyepakati jadwal final.</p>
         </li>
       </ol>
     </section>

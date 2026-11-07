@@ -1,9 +1,4 @@
-import {
-  createBookingChild,
-  formatRegistration,
-  localDate,
-  type BookingDraft
-} from '~/data/booking'
+import { createBookingChild, type BookingDraft } from '~/data/booking'
 
 export function useBookingForm() {
   const { packages, methods, providers, sessions, status } = usePublicCatalog()
@@ -57,30 +52,50 @@ export function useBookingForm() {
     },
     { immediate: true }
   )
-  // Demo counters are local to this app session, not a production allocator.
-  const sequences = useState<Record<string, number>>(
-    'booking-demo-sequences',
-    () => ({})
-  )
-  const registration = useState<string>('booking-registration', () => '')
-  const originalDate = useState<string>('booking-original-date', () => '')
+  const receipt = useState<{
+    code: string
+    date: string
+    total: number
+  } | null>('booking-receipt', () => null)
+  let lastRequest: { fingerprint: string; key: string } | undefined
 
-  function register() {
-    // Editing/rescheduling the current application keeps its original identity.
-    if (registration.value) return registration.value
-    const date = draft.value.date
-    const nextSequence = (sequences.value[date] ?? 0) + 1
-    const code = formatRegistration(date, nextSequence)
-    sequences.value[date] = nextSequence
-    originalDate.value = date
-    registration.value = code
-    return code
+  async function register() {
+    const payload = {
+      ...draft.value,
+      children: draft.value.children.map(
+        ({
+          name,
+          birthPlace,
+          birthDate,
+          gender,
+          guardian,
+          packageId,
+          methodId
+        }) => ({
+          name,
+          birthPlace,
+          birthDate,
+          gender,
+          guardian,
+          packageId,
+          methodId
+        })
+      ),
+      expectedTotal: total.value
+    }
+    const fingerprint = JSON.stringify(payload)
+    if (!lastRequest || lastRequest.fingerprint !== fingerprint)
+      lastRequest = { fingerprint, key: crypto.randomUUID() }
+    receipt.value = await $fetch('/api/bookings', {
+      method: 'POST',
+      body: { ...payload, requestKey: lastRequest.key }
+    })
   }
 
   function startNewBooking() {
-    registration.value = ''
+    receipt.value = null
+    lastRequest = undefined
     catalogWarning.value = ''
-    originalDate.value = ''
     draft.value = {
       children: [createBookingChild(1)],
       customer: { name: '', whatsapp: '', address: '', locationNotes: '' },
@@ -113,43 +128,12 @@ export function useBookingForm() {
     if (children.length > quantity) children.splice(quantity)
   }
 
-  function fillSampleData() {
-    const requestedDate = new Date()
-    requestedDate.setDate(requestedDate.getDate() + 7)
-    draft.value.children.forEach((child, index) => {
-      Object.assign(child, {
-        name:
-          index === 0
-            ? 'Muhammad Rayyan (Contoh)'
-            : `Adik Rayyan ${index + 1} (Contoh)`,
-        nik: '',
-        birthPlace: 'Bandung',
-        birthDate: `${2018 + (index % 4)}-05-14`,
-        guardian: 'Farhan Pratama (Contoh)',
-        healthNotes: 'Contoh: tidak ada alergi yang diketahui'
-      })
-    })
-    Object.assign(draft.value.customer, {
-      name: 'Farhan Pratama (Contoh)',
-      whatsapp: '081200000000',
-      address:
-        'Jl. Contoh No. 10, RT 01/RW 02, Kelurahan Contoh, Kecamatan Contoh, Bandung 40111',
-      locationNotes: 'Alamat contoh untuk demonstrasi'
-    })
-    draft.value.date = localDate(requestedDate)
-    draft.value.notes =
-      'Contoh: ananda sedikit pemalu, mohon didampingi orang tua.'
-    draft.value.consent = false
-  }
-
   return {
     draft,
     catalogWarning,
     total,
     setQuantity,
-    fillSampleData,
-    registration,
-    originalDate,
+    receipt,
     register,
     startNewBooking
   }

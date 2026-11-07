@@ -27,7 +27,7 @@ function created(id: string) {
     <AdminPageHeading
       eyebrow="OPERASIONAL KLINIK / RESERVASI & TINJAUAN"
       title="Manajemen Booking & Reservasi Pasien"
-      description="Kelola pengajuan masuk, verifikasi data keluarga, dan kesepakatan jadwal layanan."
+      description="Lihat pengajuan website dan coba alur pengelolaan reservasi."
     >
       <NuxtLink to="/admin/excel" class="admin-button secondary">
         <UIcon name="i-lucide-download" />
@@ -35,9 +35,11 @@ function created(id: string) {
       </NuxtLink>
       <button class="admin-button primary" @click="manualOpen = true">
         <UIcon name="i-lucide-plus" />
-        Input Booking Manual
+        Simulasi Booking Manual
       </button>
     </AdminPageHeading>
+    <AdminBookingInbox />
+    <h2>Simulasi Operasional</h2>
     <div class="admin-stats-grid">
       <AdminStatCard
         label="Total Reservasi"

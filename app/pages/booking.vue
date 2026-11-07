@@ -16,7 +16,7 @@ await catalog.ready
 useSeoMeta({
   title: 'Booking Khitan — MyLaaTachzan',
   description:
-    'Formulir booking khitan: data anak dan wali, paket dan metode, tenaga medis, serta preferensi jadwal. Versi demo.'
+    'Formulir booking khitan: data anak dan wali, paket dan metode, tenaga medis, serta preferensi jadwal.'
 })
 
 const route = useRoute()
@@ -24,9 +24,7 @@ const {
   draft,
   total,
   setQuantity,
-  fillSampleData,
-  registration,
-  originalDate,
+  receipt,
   register,
   startNewBooking,
   catalogWarning
@@ -35,7 +33,7 @@ const stage = ref(1)
 const today = ref(localDate())
 const draftSaved = ref(false)
 const statusDialog = ref<'status' | null>(null)
-const showSuccess = ref(Boolean(registration.value))
+const showSuccess = ref(Boolean(receipt.value))
 const form = ref<HTMLFormElement>()
 const submissionError = ref('')
 const completed = computed(() => [
@@ -163,12 +161,11 @@ async function submit() {
       return
     }
     try {
-      register()
+      await register()
     } catch (error) {
       submissionError.value =
-        error instanceof Error
-          ? error.message
-          : 'Nomor pendaftaran belum berhasil dibuat. Silakan coba lagi.'
+        (error as { data?: { data?: { message?: string } } }).data?.data
+          ?.message ?? 'Pengajuan belum dapat diproses. Silakan coba lagi.'
       return
     }
     showSuccess.value = true
@@ -177,10 +174,6 @@ async function submit() {
     submitting.value = false
   }
 }
-function editDraft() {
-  showSuccess.value = false
-  nextTick(() => goToStage(1))
-}
 function newBooking() {
   startNewBooking()
   showSuccess.value = false
@@ -188,17 +181,13 @@ function newBooking() {
   draftSaved.value = false
   nextTick(() => goToStage(1))
 }
-function fillExample() {
-  fillSampleData()
-  submissionError.value = ''
-}
 </script>
 
 <template>
   <div class="booking-page">
     <a class="skip-link" href="#booking-main">Langsung ke formulir</a>
     <LandingHeader
-      @book="showSuccess ? editDraft() : goToStage(1)"
+      @book="showSuccess ? newBooking() : goToStage(1)"
       @check="statusDialog = 'status'"
     />
     <main id="booking-main" class="booking-main container">
@@ -213,15 +202,6 @@ function fillExample() {
             Lengkapi data, pilih layanan, dan rencanakan momen berani si kecil.
           </p>
         </div>
-        <button
-          v-if="!showSuccess"
-          type="button"
-          class="button button-outline"
-          @click="fillExample"
-        >
-          <UIcon name="i-lucide-sparkles" />
-          Isi Data Contoh
-        </button>
       </div>
 
       <div
@@ -268,35 +248,33 @@ function fillExample() {
         "
       >
         <section
-          v-if="showSuccess"
+          v-if="showSuccess && receipt"
           class="booking-success booking-panel"
           aria-live="polite"
         >
           <span class="booking-success-icon">
             <UIcon name="i-lucide-circle-check" />
           </span>
-          <span class="eyebrow">SIMULASI PENGAJUAN SELESAI</span>
+          <span class="eyebrow">PENGAJUAN DITERIMA</span>
           <h2>Terima kasih, Ayah & Bunda.</h2>
           <p>
-            Berikut contoh pengajuan untuk {{ draft.children.length }} anak.
-            Data ini belum dikirim ke klinik dan tidak disimpan ke server.
+            Pengajuan untuk {{ draft.children.length }} anak telah diterima
+            klinik.
           </p>
           <div class="booking-success-code">
-            <span>Nomor pendaftaran · Demo</span>
-            <strong>{{ registration }}</strong>
+            <span>Nomor pendaftaran</span>
+            <strong>{{ receipt.code }}</strong>
             <small>
               Nomor dibuat dari tanggal reservasi awal
-              {{ displayDate(originalDate) }} dan nomor urut harian.
+              {{ displayDate(receipt.date) }} dan nomor urut harian.
             </small>
             <span class="booking-waiting">
               <UIcon name="i-lucide-clock-3" />
-              Menunggu Konfirmasi Klinik · Demo
+              Menunggu Konfirmasi Klinik
             </span>
           </div>
           <p class="booking-field-hint">
-            Nomor pendaftaran tetap sama jika jadwal diubah. Penghitung contoh
-            berlaku selama sesi aplikasi ini dan direset saat halaman dimuat
-            ulang.
+            Simpan nomor pendaftaran untuk komunikasi dengan petugas.
           </p>
           <dl>
             <div>
@@ -309,25 +287,20 @@ function fillExample() {
             </div>
             <div>
               <dt>Estimasi biaya</dt>
-              <dd>{{ formatRupiah(total) }}</dd>
+              <dd>{{ formatRupiah(receipt.total) }}</dd>
             </div>
           </dl>
           <div class="booking-inline-note">
             <UIcon name="i-lucide-info" />
             <p>
-              Pada layanan aktif, klinik memeriksa data dan mengonfirmasi
-              jadwal. Belum ada jadwal final atau pesan WhatsApp yang terkirim
-              dari demo ini.
+              Petugas akan memeriksa pengajuan dan menghubungi wali untuk
+              menyepakati jadwal.
             </p>
           </div>
           <div class="booking-success-actions">
             <button class="button button-primary" @click="newBooking">
               <UIcon name="i-lucide-plus" />
               Buat Booking Baru
-            </button>
-            <button class="button button-outline" @click="editDraft">
-              Kembali ke formulir
-              <UIcon name="i-lucide-arrow-right" />
             </button>
             <NuxtLink to="/" class="button button-outline">
               Kembali ke beranda
@@ -660,8 +633,8 @@ function fillExample() {
                     <div class="booking-inline-note">
                       <UIcon name="i-lucide-calendar-clock" />
                       <p>
-                        Data ketersediaan belum tersambung dalam demo. Tanggal
-                        yang bisa dipilih bukan jaminan slot tersedia.
+                        Tanggal yang dipilih adalah preferensi. Petugas akan
+                        memeriksa ketersediaan.
                       </p>
                     </div>
                   </div>
@@ -721,7 +694,7 @@ function fillExample() {
               <BookingSection
                 :number="6"
                 title="Review & Kirim Pengajuan"
-                description="Periksa kembali data keluarga sebelum membuat simulasi pengajuan."
+                description="Periksa kembali data keluarga sebelum mengirim pengajuan."
               >
                 <div class="booking-review">
                   <article
@@ -739,7 +712,6 @@ function fillExample() {
                     <p>
                       Orang tua / wali: {{ child.guardian || 'Belum diisi' }}
                     </p>
-                    <p v-if="child.nik">NIK: {{ child.nik }}</p>
                     <p>
                       {{
                         packages.find((item) => item.id === child.packageId)
@@ -749,9 +721,6 @@ function fillExample() {
                       {{
                         methods.find((item) => item.id === child.methodId)?.name
                       }}
-                    </p>
-                    <p v-if="child.healthNotes">
-                      Catatan kesehatan: {{ child.healthNotes }}
                     </p>
                   </article>
                   <dl>
@@ -805,16 +774,13 @@ function fillExample() {
                 <details id="booking-privacy" class="booking-privacy">
                   <summary>
                     <UIcon name="i-lucide-lock-keyhole" />
-                    Keterangan privasi demo
+                    Penggunaan data pengajuan
                     <UIcon name="i-lucide-chevron-down" />
                   </summary>
                   <p>
-                    Gunakan data contoh saat mencoba formulir ini. Isian berada
-                    di memori tab, tidak dikirim ke server, dan tidak ditulis ke
-                    penyimpanan browser. Draft akan hilang saat halaman dimuat
-                    ulang atau tab ditutup. Pada layanan aktif, kebijakan
-                    privasi resmi klinik harus tersedia sebelum data pasien
-                    dikirim.
+                    Saat dikirim, data anak dan wali disimpan untuk peninjauan
+                    pendaftaran dan komunikasi jadwal oleh klinik. Hindari
+                    mencantumkan NIK atau catatan kesehatan dalam kolom catatan.
                   </p>
                 </details>
               </BookingSection>
@@ -845,7 +811,7 @@ function fillExample() {
                   type="submit"
                   :disabled="submitting"
                 >
-                  Ajukan Booking Demo
+                  Kirim Pengajuan
                   <UIcon name="i-lucide-send" />
                 </button>
               </div>

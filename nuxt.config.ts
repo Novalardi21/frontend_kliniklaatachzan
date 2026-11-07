@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL ?? '',
     siteUrl: '',
+    bookingStaffPhone: '',
     authCookieSecure: process.env.NODE_ENV === 'production'
   },
   css: ['~/assets/css/main.css'],

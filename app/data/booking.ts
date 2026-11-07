@@ -1,12 +1,10 @@
 export interface BookingChild {
   id: number
   name: string
-  nik: string
   birthPlace: string
   birthDate: string
   gender: string
   guardian: string
-  healthNotes: string
   packageId: string
   methodId: string
 }
@@ -69,12 +67,10 @@ export const createBookingChild = (
 ): BookingChild => ({
   id,
   name: '',
-  nik: '',
   birthPlace: '',
   birthDate: '',
   gender: 'Laki-laki',
   guardian: '',
-  healthNotes: '',
   packageId,
   methodId: 'clinic'
 })

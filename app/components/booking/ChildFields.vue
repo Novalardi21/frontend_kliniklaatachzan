@@ -24,19 +24,6 @@ defineProps<{ index: number; today: string }>()
           pattern=".*\S.*"
         />
       </label>
-      <label :for="`child-nik-${child.id}`">
-        NIK anak
-        <small>(opsional)</small>
-        <input
-          :id="`child-nik-${child.id}`"
-          v-model.trim="child.nik"
-          inputmode="numeric"
-          placeholder="16 digit, bila diperlukan klinik"
-          pattern="[0-9]{16}"
-          maxlength="16"
-          title="NIK terdiri dari 16 digit angka"
-        />
-      </label>
       <label :for="`child-place-${child.id}`">
         Tempat lahir
         <span>*</span>
@@ -86,17 +73,6 @@ defineProps<{ index: number; today: string }>()
           required
           maxlength="100"
           pattern=".*\S.*"
-        />
-      </label>
-      <label :for="`child-health-${child.id}`" class="field-full">
-        Riwayat alergi / kondisi khusus
-        <small>(opsional)</small>
-        <textarea
-          :id="`child-health-${child.id}`"
-          v-model.trim="child.healthNotes"
-          placeholder="Contoh: alergi obat atau kondisi yang perlu diketahui tenaga medis"
-          rows="2"
-          maxlength="1000"
         />
       </label>
     </div>

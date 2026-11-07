@@ -135,7 +135,7 @@ export const faqs = [
   {
     question: 'Bagaimana cara booking khitan di MyLaaTachzan?',
     answer:
-      'Alurnya dimulai dari data anak dan wali, pilihan paket dan metode, lalu preferensi tenaga medis serta jadwal. Klinik akan memeriksa pengajuan sebelum mengonfirmasi jadwal final. Pada versi demo ini, Anda dapat mencoba simulasi pilihan paket dan jadwal.'
+      'Alurnya dimulai dari data anak dan wali, pilihan paket dan metode, lalu preferensi tenaga medis serta jadwal. Klinik akan memeriksa pengajuan sebelum mengonfirmasi jadwal final.'
   },
   {
     question: 'Apakah bisa mendaftarkan lebih dari satu anak?',
@@ -150,7 +150,7 @@ export const faqs = [
   {
     question: 'Bagaimana metode pembayarannya?',
     answer:
-      'Pembayaran dilakukan di tempat setelah layanan. Pilihan tunai, QRIS, atau transfer mengikuti fasilitas yang nantinya dikonfirmasi oleh klinik. Demo ini tidak meminta pembayaran.'
+      'Pembayaran dilakukan di tempat setelah layanan. Pilihan tunai, QRIS, atau transfer mengikuti fasilitas yang nantinya dikonfirmasi oleh klinik.'
   },
   {
     question: 'Bagaimana memilih metode khitan yang sesuai?',

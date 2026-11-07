@@ -31,8 +31,8 @@
           Versi pratinjau
         </span>
         <p>
-          Paket dan profil mengikuti katalog klinik. Pengajuan booking masih
-          berupa simulasi dan belum dikirim ke klinik.
+          Paket dan profil mengikuti katalog klinik. Petugas meninjau setiap
+          pengajuan sebelum mengonfirmasi jadwal.
         </p>
       </div>
     </div>
