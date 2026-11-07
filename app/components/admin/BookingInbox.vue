@@ -6,6 +6,32 @@ const {
   error,
   refresh
 } = useFetch('/api/admin/booking-inbox', { server: false })
+const sending = ref('')
+const sendError = ref('')
+const deliveryLabels: Record<string, string> = {
+  queued: 'Dalam antrean',
+  sending: 'Sedang diproses',
+  sent: 'Diterima gateway',
+  read: 'Dibaca',
+  failed: 'Perlu diperiksa'
+}
+async function sendWhatsApp(code: string) {
+  sending.value = code
+  sendError.value = ''
+  try {
+    await $fetch('/api/admin/booking-whatsapp', {
+      method: 'POST',
+      body: { code }
+    })
+  } catch (issue) {
+    sendError.value =
+      (issue as { data?: { data?: { message?: string } } }).data?.data
+        ?.message ?? 'Antrean WhatsApp belum dapat diproses.'
+  } finally {
+    await refresh()
+    sending.value = ''
+  }
+}
 </script>
 
 <template>
@@ -24,6 +50,7 @@ const {
         Muat Ulang
       </button>
     </div>
+    <p v-if="sendError" role="alert">{{ sendError }}</p>
     <p v-if="status === 'pending'" role="status">Memuat pengajuan…</p>
     <p v-else-if="error" role="alert">
       Pengajuan belum dapat dimuat. Periksa koneksi dan migrasi 007.
@@ -40,6 +67,7 @@ const {
             <th>Pasien</th>
             <th>Preferensi jadwal</th>
             <th>Status</th>
+            <th>WhatsApp</th>
           </tr>
         </thead>
         <tbody>
@@ -54,6 +82,36 @@ const {
             <td>{{ shortDate(booking.date) }} · {{ booking.session }}</td>
             <td>
               {{ statusLabels[booking.status as AdminBooking['status']] }}
+            </td>
+            <td>
+              <div
+                v-for="message in booking.notifications"
+                :key="message.audience"
+              >
+                {{ message.audience }} ·
+                {{ deliveryLabels[message.status] ?? message.status }}
+                <small
+                  v-if="message.status === 'queued' && !message.hasRecipient"
+                >
+                  · Nomor belum tersedia di antrean
+                </small>
+                <small v-if="message.error">· {{ message.error }}</small>
+              </div>
+              <button
+                v-if="
+                  booking.notifications.some(
+                    (message) => message.status === 'queued'
+                  )
+                "
+                type="button"
+                class="admin-button secondary small"
+                :disabled="Boolean(sending)"
+                @click="sendWhatsApp(booking.code)"
+              >
+                {{
+                  sending === booking.code ? 'Memproses…' : 'Kirim Antrean WA'
+                }}
+              </button>
             </td>
           </tr>
         </tbody>

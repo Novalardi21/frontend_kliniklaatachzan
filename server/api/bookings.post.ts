@@ -1,16 +1,28 @@
 import { requireSameOrigin } from '../utils/auth-http'
 import { database } from '../utils/database'
 import { BookingError, savePublicBooking } from '../utils/public-booking'
+import { deliverBookingWhatsApp } from '../utils/whatsapp-delivery'
 
 export default defineEventHandler(async (event) => {
   requireSameOrigin(event)
   const payload = await readBody(event)
   try {
-    return await savePublicBooking(
-      database(),
+    const pool = database()
+    const config = useRuntimeConfig()
+    const receipt = await savePublicBooking(
+      pool,
       payload,
-      useRuntimeConfig().bookingStaffPhone
+      config.bookingStaffPhone
     )
+    await deliverBookingWhatsApp(
+      pool,
+      receipt.code,
+      config.whatsapp,
+      config.bookingStaffPhone
+    ).catch(() => {
+      console.error('Status notifikasi booking tidak dapat diproses.')
+    })
+    return receipt
   } catch (error) {
     if (error instanceof BookingError)
       throw createError({

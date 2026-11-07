@@ -7,6 +7,16 @@ export default defineNuxtConfig({
     databaseUrl: process.env.DATABASE_URL ?? '',
     siteUrl: '',
     bookingStaffPhone: '',
+    whatsapp: {
+      provider: 'meta',
+      fonnteToken: '',
+      accessToken: '',
+      phoneNumberId: '',
+      graphVersion: '',
+      guardianTemplate: 'booking_wali_diterima',
+      staffTemplate: 'booking_petugas_baru',
+      language: 'id'
+    },
     authCookieSecure: process.env.NODE_ENV === 'production'
   },
   css: ['~/assets/css/main.css'],
