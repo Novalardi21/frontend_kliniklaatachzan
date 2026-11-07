@@ -24,6 +24,13 @@ export default defineEventHandler(async (event) => {
     phone: string
     children: string[]
     status: string
+    version: string
+    address: string
+    verified: boolean
+    providerId: string | null
+    sessionId: string
+    proposedDate: string | null
+    proposedSessionId: string | null
     notifications: {
       audience: string
       status: string
@@ -34,15 +41,18 @@ export default defineEventHandler(async (event) => {
     `
     SELECT b.registration_code AS code, b.service_date::text AS date,
            s.name AS session, c.full_name AS guardian, c.whatsapp AS phone, b.status,
+           b.updated_at::text AS version, c.address, b.identity_verified AS verified,
+           b.provider_id::text AS "providerId", b.session_id AS "sessionId",
+           b.proposed_date::text AS "proposedDate", b.proposed_session_id AS "proposedSessionId",
            ARRAY(SELECT ch.full_name FROM clinic.booking_children bc
                  JOIN clinic.children ch ON ch.id=bc.child_id
                  WHERE bc.booking_id=b.id ORDER BY ch.id) AS children,
            coalesce((SELECT json_agg(json_build_object(
-             'audience', CASE WHEN n.template_id='booking-guardian' THEN 'Wali' ELSE 'Petugas' END,
+             'audience', CASE n.template_id WHEN 'booking-staff' THEN 'Petugas' WHEN 'booking-guardian' THEN 'Wali' ELSE 'Wali · ' || n.template_id END,
              'status', n.status, 'error', n.last_error,
              'hasRecipient', n.recipient_phone IS NOT NULL
            ) ORDER BY n.id) FROM clinic.notifications n WHERE n.booking_id=b.id
-             AND n.template_id IN ('booking-guardian','booking-staff')), '[]'::json) AS notifications
+             AND n.template_id IN ('booking-guardian','booking-staff','confirmed','reschedule','rejected')), '[]'::json) AS notifications
     FROM clinic.bookings b JOIN clinic.customers c ON c.id=b.customer_id
     JOIN clinic.service_sessions s ON s.id=b.session_id
     WHERE (($1::text <> '' AND b.registration_code=$1)

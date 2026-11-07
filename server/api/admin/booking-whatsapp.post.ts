@@ -30,7 +30,9 @@ export default defineEventHandler(async (event) => {
     pool,
     body.code,
     config.whatsapp,
-    config.bookingStaffPhone
+    config.bookingStaffPhone,
+    fetch,
+    ['booking-guardian', 'booking-staff', 'confirmed', 'reschedule', 'rejected']
   )
   return { processed: true }
 })

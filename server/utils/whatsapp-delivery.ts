@@ -71,10 +71,17 @@ export async function deliverBookingWhatsApp(
   code: string,
   config: WhatsAppConfig,
   staffPhone: string,
-  transport: typeof fetch = fetch
+  transport: typeof fetch = fetch,
+  templates = ['booking-guardian', 'booking-staff']
 ) {
   if (!whatsappConfigured(config)) return
   const staffRecipient = /^62\d{8,13}$/.test(staffPhone) ? staffPhone : null
+  const supported =
+    config.provider === 'fonnte'
+      ? templates
+      : templates.filter(
+          (id) => id === 'booking-guardian' || id === 'booking-staff'
+        )
   // Claim before calling the gateway to prevent duplicate sends.
   const { rows } = await pool.query<MessageRow>(
     `
@@ -83,11 +90,11 @@ export async function deliverBookingWhatsApp(
         recipient_phone=coalesce(n.recipient_phone,$2::varchar), last_error=NULL
     FROM clinic.bookings b JOIN clinic.service_sessions s ON s.id=b.session_id
     WHERE n.booking_id=b.id AND b.registration_code=$1 AND n.status='queued'
-      AND n.template_id IN ('booking-guardian','booking-staff')
+      AND n.template_id=ANY($3::text[])
       AND (n.recipient_phone IS NOT NULL OR (n.template_id='booking-staff' AND $2::varchar IS NOT NULL))
     RETURNING n.id,n.recipient_phone,n.template_id,n.body,b.registration_date::text AS service_date,s.name AS session_name
   `,
-    [code, staffRecipient]
+    [code, staffRecipient, supported]
   )
   await Promise.all(
     rows.map(async (row) => {

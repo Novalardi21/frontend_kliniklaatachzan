@@ -23,6 +23,10 @@ const {
   query: { compact: props.compact ? 'true' : 'false', selected, search }
 })
 defineExpose({ refresh })
+async function refreshAfterReview() {
+  clearNuxtData('clinic-admin-dashboard')
+  await refresh()
+}
 const sending = ref('')
 const sendError = ref('')
 const deliveryLabels: Record<string, string> = {
@@ -30,7 +34,8 @@ const deliveryLabels: Record<string, string> = {
   sending: 'Sedang diproses',
   sent: 'Diterima gateway',
   read: 'Dibaca',
-  failed: 'Perlu diperiksa'
+  failed: 'Perlu diperiksa',
+  cancelled: 'Digantikan pesan terbaru'
 }
 async function sendWhatsApp(code: string) {
   sending.value = code
@@ -109,7 +114,18 @@ async function sendWhatsApp(code: string) {
         </thead>
         <tbody>
           <tr v-for="booking in bookings" :key="booking.code">
-            <td>{{ booking.code }}</td>
+            <td>
+              <NuxtLink
+                class="admin-text-link"
+                :to="{
+                  path: '/admin/bookings',
+                  query: { selected: booking.code },
+                  hash: '#pengajuan-website'
+                }"
+              >
+                {{ booking.code }}
+              </NuxtLink>
+            </td>
             <td>
               {{ booking.guardian }}
               <br />
@@ -154,5 +170,11 @@ async function sendWhatsApp(code: string) {
         </tbody>
       </table>
     </div>
+    <AdminLiveBookingReview
+      v-if="selected && bookings?.[0]?.code === selected"
+      :key="selected + bookings[0].version"
+      :booking="bookings[0]"
+      @updated="refreshAfterReview()"
+    />
   </section>
 </template>

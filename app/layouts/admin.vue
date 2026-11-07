@@ -6,14 +6,15 @@ const persistentMaster = computed(() => route.path === '/admin/master-data')
 const liveDashboard = computed(
   () => route.path === '/admin' || route.path === '/admin/'
 )
+const liveRecords = computed(() => liveDashboard.value || ['/admin/bookings', '/admin/schedule', '/admin/notifications'].includes(route.path))
 const { data: dashboardSummary } = useNuxtData<{
   pending: number
   queued: number
   failed: number
 }>('clinic-admin-dashboard')
 const modeLabel = computed(() =>
-  liveDashboard.value
-    ? 'Dashboard · PostgreSQL'
+  liveRecords.value
+    ? 'Operasional · PostgreSQL'
     : persistentMaster.value
       ? 'Master Data · PostgreSQL'
       : 'Pratinjau · Data contoh'
@@ -82,11 +83,11 @@ async function searchBookings() {
           <small
             v-if="
               item.to === '/admin/bookings' &&
-              (liveDashboard ? dashboardSummary?.pending : pending.length)
+              (liveRecords ? dashboardSummary?.pending : pending.length)
             "
           >
             {{
-              liveDashboard ? dashboardSummary?.pending : pending.length
+              liveRecords ? dashboardSummary?.pending : pending.length
             }}
             Baru
           </small>
@@ -136,18 +137,14 @@ async function searchBookings() {
           {{ modeLabel }}
         </span>
         <NuxtLink
-          :to="
-            liveDashboard
-              ? '/admin/bookings#pengajuan-website'
-              : '/admin/notifications'
-          "
+          to="/admin/notifications"
           class="admin-icon-button admin-bell"
           aria-label="Lihat notifikasi"
         >
           <UIcon name="i-lucide-bell" />
           <span
             v-if="
-              liveDashboard
+              liveRecords
                 ? Boolean(dashboardSummary?.queued || dashboardSummary?.failed)
                 : data.messages.some(
                     (item) =>
@@ -169,8 +166,8 @@ async function searchBookings() {
         <span>© {{ new Date().getFullYear() }} Klinik LaaTachzan</span>
         <span>
           {{
-            liveDashboard
-              ? 'Ringkasan operasional dari PostgreSQL'
+            liveRecords
+              ? 'Data operasional dari PostgreSQL'
               : persistentMaster
                 ? 'Master Data disimpan di PostgreSQL'
                 : 'Mode pratinjau · Perubahan tersimpan selama sesi ini'
