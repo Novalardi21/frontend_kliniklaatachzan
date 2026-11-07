@@ -3,6 +3,21 @@ import { adminNavigation, initials } from '~/data/admin'
 import '~/assets/css/admin.css'
 const route = useRoute()
 const persistentMaster = computed(() => route.path === '/admin/master-data')
+const liveDashboard = computed(
+  () => route.path === '/admin' || route.path === '/admin/'
+)
+const { data: dashboardSummary } = useNuxtData<{
+  pending: number
+  queued: number
+  failed: number
+}>('clinic-admin-dashboard')
+const modeLabel = computed(() =>
+  liveDashboard.value
+    ? 'Dashboard · PostgreSQL'
+    : persistentMaster.value
+      ? 'Master Data · PostgreSQL'
+      : 'Pratinjau · Data contoh'
+)
 const { name, label, logout: endSession } = useAdminSession()
 const { data, pending, notices } = useAdminData()
 const search = ref('')
@@ -16,6 +31,11 @@ watch(
 async function logout() {
   try {
     await endSession()
+    clearNuxtData([
+      'clinic-admin-dashboard',
+      'clinic-inbox-compact',
+      'clinic-inbox-full'
+    ])
     await navigateTo('/admin/login')
   } catch {
     const { notify } = useAdminData()
@@ -25,7 +45,8 @@ async function logout() {
 async function searchBookings() {
   await navigateTo({
     path: '/admin/bookings',
-    query: search.value.trim() ? { search: search.value.trim() } : {}
+    query: search.value.trim() ? { search: search.value.trim() } : {},
+    hash: '#pengajuan-website'
   })
 }
 </script>
@@ -45,11 +66,7 @@ async function searchBookings() {
       </div>
       <div class="admin-mode-tag">
         <UIcon name="i-lucide-badge-check" />
-        {{
-          persistentMaster
-            ? 'Master Data · PostgreSQL'
-            : 'Pratinjau · Data contoh'
-        }}
+        {{ modeLabel }}
       </div>
       <small class="admin-nav-label">NAVIGASI OPERASIONAL</small>
       <nav aria-label="Navigasi operasional">
@@ -62,8 +79,16 @@ async function searchBookings() {
         >
           <UIcon :name="item.icon" />
           <span>{{ item.label }}</span>
-          <small v-if="item.to === '/admin/bookings' && pending.length">
-            {{ pending.length }} Baru
+          <small
+            v-if="
+              item.to === '/admin/bookings' &&
+              (liveDashboard ? dashboardSummary?.pending : pending.length)
+            "
+          >
+            {{
+              liveDashboard ? dashboardSummary?.pending : pending.length
+            }}
+            Baru
           </small>
         </NuxtLink>
       </nav>
@@ -108,19 +133,26 @@ async function searchBookings() {
         </form>
         <span class="admin-topbar-tag">
           <span class="status-dot" />
-          {{ persistentMaster ? 'Master Data' : 'Mode pratinjau' }}
+          {{ modeLabel }}
         </span>
         <NuxtLink
-          to="/admin/notifications"
+          :to="
+            liveDashboard
+              ? '/admin/bookings#pengajuan-website'
+              : '/admin/notifications'
+          "
           class="admin-icon-button admin-bell"
           aria-label="Lihat notifikasi"
         >
           <UIcon name="i-lucide-bell" />
           <span
             v-if="
-              data.messages.some(
-                (item) => item.status === 'failed' || item.status === 'queued'
-              )
+              liveDashboard
+                ? Boolean(dashboardSummary?.queued || dashboardSummary?.failed)
+                : data.messages.some(
+                    (item) =>
+                      item.status === 'failed' || item.status === 'queued'
+                  )
             "
           />
         </NuxtLink>
@@ -135,11 +167,15 @@ async function searchBookings() {
       <main id="admin-main" class="admin-content"><slot /></main>
       <footer class="admin-bottom-bar">
         <span>© {{ new Date().getFullYear() }} Klinik LaaTachzan</span>
-        <span>{{
-          persistentMaster
-            ? 'Master Data disimpan di PostgreSQL'
-            : 'Mode pratinjau · Perubahan tersimpan selama sesi ini'
-        }}</span>
+        <span>
+          {{
+            liveDashboard
+              ? 'Ringkasan operasional dari PostgreSQL'
+              : persistentMaster
+                ? 'Master Data disimpan di PostgreSQL'
+                : 'Mode pratinjau · Perubahan tersimpan selama sesi ini'
+          }}
+        </span>
       </footer>
     </div>
     <div class="admin-toasts" aria-live="polite">

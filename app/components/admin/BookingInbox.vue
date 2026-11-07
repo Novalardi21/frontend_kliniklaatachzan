@@ -1,11 +1,28 @@
 <script setup lang="ts">
 import { shortDate, statusLabels, type AdminBooking } from '~/data/admin'
+const props = defineProps<{ compact?: boolean }>()
+const route = useRoute()
+const selected = computed(() =>
+  !props.compact && typeof route.query.selected === 'string'
+    ? route.query.selected
+    : ''
+)
+const search = computed(() =>
+  !props.compact && !selected.value && typeof route.query.search === 'string'
+    ? route.query.search
+    : ''
+)
 const {
   data: bookings,
   status,
   error,
   refresh
-} = useFetch('/api/admin/booking-inbox', { server: false })
+} = useFetch('/api/admin/booking-inbox', {
+  server: false,
+  key: props.compact ? 'clinic-inbox-compact' : 'clinic-inbox-full',
+  query: { compact: props.compact ? 'true' : 'false', selected, search }
+})
+defineExpose({ refresh })
 const sending = ref('')
 const sendError = ref('')
 const deliveryLabels: Record<string, string> = {
@@ -35,13 +52,29 @@ async function sendWhatsApp(code: string) {
 </script>
 
 <template>
-  <section class="admin-card">
+  <section id="pengajuan-website" class="admin-card">
     <div class="admin-card-heading">
       <div>
-        <h2>Pengajuan dari Website</h2>
-        <p>100 pengajuan terbaru yang tersimpan di PostgreSQL.</p>
+        <h2>
+          {{
+            selected ? 'Detail Pengajuan Tersimpan' : 'Pengajuan dari Website'
+          }}
+        </h2>
+        <p v-if="selected">Nomor {{ selected }}</p>
+        <p v-else>
+          {{ compact ? 'Enam' : 'Hingga 100' }} pengajuan terbaru yang tersimpan
+          di PostgreSQL.
+        </p>
       </div>
+      <NuxtLink
+        v-if="compact || selected || search"
+        to="/admin/bookings#pengajuan-website"
+        class="admin-button secondary small"
+      >
+        Lihat Semua
+      </NuxtLink>
       <button
+        v-else
         type="button"
         class="admin-button secondary small"
         :disabled="status === 'pending'"
@@ -56,7 +89,11 @@ async function sendWhatsApp(code: string) {
       Pengajuan belum dapat dimuat. Periksa koneksi dan migrasi 007.
     </p>
     <p v-else-if="status === 'success' && !bookings?.length">
-      Belum ada pengajuan dari website.
+      {{
+        selected || search
+          ? 'Pengajuan yang dicari tidak ditemukan.'
+          : 'Belum ada pengajuan dari website.'
+      }}
     </p>
     <div v-else-if="bookings?.length" class="admin-table-wrap">
       <table class="admin-table">
@@ -67,7 +104,7 @@ async function sendWhatsApp(code: string) {
             <th>Pasien</th>
             <th>Preferensi jadwal</th>
             <th>Status</th>
-            <th>WhatsApp</th>
+            <th v-if="!compact">WhatsApp</th>
           </tr>
         </thead>
         <tbody>
@@ -76,14 +113,14 @@ async function sendWhatsApp(code: string) {
             <td>
               {{ booking.guardian }}
               <br />
-              {{ booking.phone }}
+              {{ compact ? '' : booking.phone }}
             </td>
             <td>{{ booking.children.join(', ') }}</td>
             <td>{{ shortDate(booking.date) }} · {{ booking.session }}</td>
             <td>
               {{ statusLabels[booking.status as AdminBooking['status']] }}
             </td>
-            <td>
+            <td v-if="!compact">
               <div
                 v-for="message in booking.notifications"
                 :key="message.audience"

@@ -21,7 +21,9 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 503,
       data: {
-        message: 'Konfigurasi pengirim WhatsApp di Railway belum lengkap.'
+        message: import.meta.dev
+          ? 'Pengirim WhatsApp lokal belum dikonfigurasi. Periksa provider dan token di frontend/.env, lalu restart Nuxt.'
+          : 'Konfigurasi pengirim WhatsApp di Railway belum lengkap.'
       }
     })
   await deliverBookingWhatsApp(
