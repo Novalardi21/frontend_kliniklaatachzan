@@ -74,77 +74,69 @@ async function login() {
         <blockquote>“Daftar Mudah, Khitan Nyaman, Keluarga Tenang.”</blockquote>
       </aside>
       <section class="admin-login-form">
-        <div class="admin-split">
-          <span class="admin-eyebrow">ADMIN CENTRAL ACCESS</span>
-          <span class="admin-pill">
-            <span class="status-dot" />
-            Akses Administrator
-          </span>
-        </div>
-        <h2>Autentikasi Staf Medis</h2>
-        <p>Masuk ke ruang kerja operasional klinik.</p>
-        <form class="admin-form" @submit.prevent="login">
-          <label class="admin-field">
-            Email petugas
-            <input
-              v-model="email"
-              type="email"
-              autocomplete="username"
-              placeholder="Masukkan email admin"
-              required
-            />
-            <small>Gunakan akun administrator klinik.</small>
-          </label>
-          <label class="admin-field">
-            Kata sandi portal
-            <div class="admin-password">
+        <div class="admin-login-fields">
+          <div class="admin-split">
+            <span class="admin-eyebrow">PORTAL ADMIN</span>
+            <span class="admin-pill">
+              <span class="status-dot" />
+              Akses Administrator
+            </span>
+          </div>
+          <h2>Autentikasi Staf Medis</h2>
+          <p>Masuk ke ruang kerja operasional klinik.</p>
+          <form class="admin-form" @submit.prevent="login">
+            <label class="admin-field">
+              Email petugas
               <input
-                v-model="password"
-                :type="visible ? 'text' : 'password'"
-                autocomplete="current-password"
+                v-model="email"
+                type="email"
+                autocomplete="username"
+                placeholder="Masukkan email admin"
                 required
-                placeholder="Masukkan kata sandi"
               />
-              <button
-                type="button"
-                :aria-label="
-                  visible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'
-                "
-                @click="visible = !visible"
-              >
-                <UIcon :name="visible ? 'i-lucide-eye-off' : 'i-lucide-eye'" />
+              <small>Gunakan akun administrator klinik.</small>
+            </label>
+            <label class="admin-field">
+              Kata sandi portal
+              <div class="admin-password">
+                <input
+                  v-model="password"
+                  :type="visible ? 'text' : 'password'"
+                  autocomplete="current-password"
+                  required
+                  placeholder="Masukkan kata sandi"
+                />
+                <button
+                  type="button"
+                  :aria-label="
+                    visible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'
+                  "
+                  @click="visible = !visible"
+                >
+                  <UIcon :name="visible ? 'i-lucide-eye-off' : 'i-lucide-eye'" />
+                </button>
+              </div>
+            </label>
+            <div class="admin-split">
+              <button class="admin-text-link" type="button" @click="help = true">
+                Bantuan akses
               </button>
             </div>
-          </label>
-          <div class="admin-split">
-            <button class="admin-text-link" type="button" @click="help = true">
-              Bantuan akses
+            <p v-if="error" class="admin-alert error" role="alert">{{ error }}</p>
+            <button
+              class="admin-button primary"
+              type="submit"
+              :disabled="submitting"
+            >
+              {{ submitting ? 'Membuka portal…' : 'Masuk ke Dashboard Klinik' }}
+              <UIcon name="i-lucide-arrow-right" />
             </button>
-          </div>
-          <p v-if="error" class="admin-alert error" role="alert">{{ error }}</p>
-          <button
-            class="admin-button primary"
-            type="submit"
-            :disabled="submitting"
-          >
-            {{ submitting ? 'Membuka portal…' : 'Masuk ke Dashboard Klinik' }}
+          </form>
+          <NuxtLink v-if="validRole" to="/admin" class="admin-text-link">
+            Lanjutkan sesi yang sudah aktif
             <UIcon name="i-lucide-arrow-right" />
-          </button>
-        </form>
-        <div class="admin-login-note">
-          <UIcon name="i-lucide-info" />
-          <div>
-            <strong>Portal dengan data contoh</strong>
-            <p>
-              Akun login diperiksa melalui database klinik. Data reservasi,
-              pembayaran, dan pengiriman pesan masih menggunakan simulasi.
-            </p>
-          </div>
+          </NuxtLink>
         </div>
-        <NuxtLink v-if="validRole" to="/admin" class="admin-text-link">
-          Lanjutkan sesi yang sudah aktif
-          <UIcon name="i-lucide-arrow-right" />
-        </NuxtLink>
         <footer>
           © {{ new Date().getFullYear() }} Klinik LaaTachzan
           <span>Operasional dengan perhatian.</span>

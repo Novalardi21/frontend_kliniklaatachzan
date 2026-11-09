@@ -12,7 +12,51 @@ const date = ref('')
 const session = ref('Sesi pagi')
 const submitted = ref(false)
 const bookingCode = ref('')
-const statusSearched = ref(false)
+const bookingPhone = ref('')
+const statusResult = ref<{ status: keyof typeof statusMessages; date: string | null; session: string | null } | null>(null)
+const statusLoading = ref(false)
+const statusError = ref('')
+const statusMessages = {
+  pending: ['Menunggu Konfirmasi Klinik', 'Tanggal dan sesi masih berupa preferensi. Klinik akan menghubungi wali.'],
+  confirmed: ['Terkonfirmasi', 'Klinik sudah mengonfirmasi jadwal kunjungan.'],
+  reschedule: ['Usulan Jadwal Baru', 'Hubungi klinik untuk menyetujui atau membahas jadwal usulan.'],
+  completed: ['Layanan Selesai', 'Klinik sudah menandai layanan ini selesai.'],
+  rejected: ['Pengajuan Tidak Disetujui', 'Hubungi klinik jika memerlukan informasi lebih lanjut.']
+}
+let statusRequest: AbortController | undefined
+
+function resetStatus() {
+  statusRequest?.abort()
+  statusRequest = undefined
+  statusLoading.value = false
+  statusResult.value = null
+  statusError.value = ''
+}
+
+async function checkStatus() {
+  resetStatus()
+  const request = new AbortController()
+  statusRequest = request
+  statusLoading.value = true
+  try {
+    const result = await $fetch('/api/booking-status', {
+      method: 'POST',
+      body: { code: bookingCode.value, phone: bookingPhone.value },
+      signal: request.signal
+    })
+    if (!request.signal.aborted) statusResult.value = result
+  } catch (error) {
+    if (!request.signal.aborted)
+      statusError.value = (error as { data?: { data?: { message?: string } } }).data?.data
+        ?.message ?? 'Status booking belum bisa diperiksa. Silakan coba lagi.'
+  } finally {
+    if (statusRequest === request) {
+      statusRequest = undefined
+      statusLoading.value = false
+    }
+  }
+}
+watch([bookingCode, bookingPhone], resetStatus)
 const minimumDate = ref('')
 const currentPackage = computed(
   () =>
@@ -31,8 +75,8 @@ watch(
     }
     chosenPackage.value = props.packageId
     submitted.value = false
-    statusSearched.value = false
     bookingCode.value = ''
+    bookingPhone.value = ''
     const today = new Date()
     minimumDate.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
     date.value = ''
@@ -44,6 +88,7 @@ watch(
   }
 )
 function close() {
+  resetStatus()
   document.body.style.overflow = previousOverflow
   emit('close')
   previousFocus?.focus()
@@ -53,6 +98,7 @@ function submit() {
   submitted.value = true
 }
 onBeforeUnmount(() => {
+  statusRequest?.abort()
   if (props.mode) document.body.style.overflow = previousOverflow
 })
 </script>
@@ -73,7 +119,7 @@ onBeforeUnmount(() => {
       >
         <UIcon name="i-lucide-x" />
       </button>
-      <span class="soft-tag">Simulasi · Data contoh</span>
+      <span v-if="mode === 'booking'" class="soft-tag">Simulasi · Data contoh</span>
       <h2 id="dialog-title">
         {{
           mode === 'status'
@@ -159,28 +205,50 @@ onBeforeUnmount(() => {
       </div>
       <template v-else>
         <p>
-          Fitur pencarian berikut merupakan pratinjau tampilan. Belum terhubung
-          ke data booking klinik.
+          Masukkan kode registrasi dan nomor WhatsApp wali yang digunakan saat mendaftar.
         </p>
-        <form class="demo-form" @submit.prevent="statusSearched = true">
+        <form class="demo-form" @submit.prevent="checkStatus">
           <label for="booking-code">
             Kode registrasi
             <input
               id="booking-code"
               v-model="bookingCode"
-              placeholder="Contoh: KHT-20261105-001"
+              placeholder="Contoh: KHT-20261105-0001"
+              autocapitalize="characters"
+              spellcheck="false"
               required
               maxlength="32"
             />
           </label>
-          <button class="button button-primary" type="submit">
+          <label for="booking-status-phone">
+            Nomor WhatsApp wali
+            <input
+              id="booking-status-phone"
+              v-model="bookingPhone"
+              type="tel"
+              autocomplete="tel"
+              placeholder="Contoh: 081234567890"
+              maxlength="24"
+              required
+            />
+          </label>
+          <button class="button button-primary" type="submit" :disabled="statusLoading">
             <UIcon name="i-lucide-search" />
-            Cek status
+            {{ statusLoading ? 'Memeriksa…' : 'Cek status' }}
           </button>
         </form>
-        <div v-if="statusSearched" class="notice" role="status">
-          Pencarian belum tersedia dalam demo. Kode yang dimasukkan belum
-          diperiksa ke sistem klinik.
+        <div v-if="statusError" class="notice" role="alert">{{ statusError }}</div>
+        <div v-if="statusResult" class="notice" role="status">
+          <strong>{{ statusMessages[statusResult.status][0] }}</strong>
+          <div v-if="statusResult.date">
+            {{
+              new Intl.DateTimeFormat('id-ID', { dateStyle: 'long' }).format(
+                new Date(`${statusResult.date}T12:00:00`)
+              )
+            }}
+            <span v-if="statusResult.session"> · {{ statusResult.session }}</span>
+          </div>
+          <div>{{ statusMessages[statusResult.status][1] }}</div>
         </div>
       </template>
     </div>

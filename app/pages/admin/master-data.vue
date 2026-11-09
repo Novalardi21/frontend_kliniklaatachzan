@@ -156,6 +156,8 @@ function exportMaster() {
     }))
   )
 }
+const { page: tariffPage, rows: tariffRows, total: tariffTotal } =
+  useTablePagination(() => data.value.packages)
 </script>
 
 <template>
@@ -453,7 +455,7 @@ function exportMaster() {
             </thead>
             <tbody>
               <tr
-                v-for="pkg in data.packages"
+                v-for="pkg in tariffRows"
                 :key="pkg.id"
               >
                 <td>
@@ -479,6 +481,7 @@ function exportMaster() {
             </tbody>
           </table>
         </div>
+        <AdminPagination v-model="tariffPage" :total="tariffTotal" />
       </section>
     </template>
     <AdminModal

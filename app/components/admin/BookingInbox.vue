@@ -22,6 +22,8 @@ const {
   key: props.compact ? 'clinic-inbox-compact' : 'clinic-inbox-full',
   query: { compact: props.compact ? 'true' : 'false', selected, search }
 })
+const { page, rows, total } = useTablePagination(() => bookings.value ?? [])
+watch([selected, search], () => { page.value = 1 })
 defineExpose({ refresh })
 async function refreshAfterReview() {
   clearNuxtData('clinic-admin-dashboard')
@@ -113,7 +115,7 @@ async function sendWhatsApp(code: string) {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="booking in bookings" :key="booking.code">
+          <tr v-for="booking in rows" :key="booking.code">
             <td>
               <NuxtLink
                 class="admin-text-link"
@@ -170,6 +172,7 @@ async function sendWhatsApp(code: string) {
         </tbody>
       </table>
     </div>
+    <AdminPagination v-model="page" :total="total" />
     <AdminLiveBookingReview
       v-if="selected && bookings?.[0]?.code === selected"
       :key="selected + bookings[0].version"

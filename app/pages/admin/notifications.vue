@@ -35,8 +35,10 @@ const rows = computed(() =>
         .includes(search.value.trim().toLowerCase())
   )
 )
+const { page, rows: visibleRows, total: logTotal } = useTablePagination(rows)
+watch([search, filter], () => { page.value = 1 })
 const selected = computed(
-  () => rows.value.find((row) => row.id === selectedId.value) ?? rows.value[0]
+  () => visibleRows.value.find((row) => row.id === selectedId.value) ?? visibleRows.value[0]
 )
 const counts = computed(() =>
   Object.fromEntries(
@@ -178,7 +180,7 @@ async function send(code: string) {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in rows" :key="row.id">
+                <tr v-for="row in visibleRows" :key="row.id">
                   <td>{{ dateTime(row.at) }}</td>
                   <td>
                     {{ row.recipient }}
@@ -212,6 +214,7 @@ async function send(code: string) {
               </tbody>
             </table>
           </div>
+          <AdminPagination v-model="page" :total="logTotal" />
         </section>
         <aside v-if="selected" class="admin-card notification-preview">
           <h2 class="admin-section-title">Isi Pesan</h2>

@@ -32,7 +32,6 @@ const method = ref<PaymentMethod>('Tunai')
 const received = ref(selected.value?.amount ?? 0)
 const filter = ref('all')
 const search = ref('')
-const page = ref(1)
 const receipt = ref<AdminPayment | null>(null)
 const receiptOpen = ref(false)
 const filtered = computed(() =>
@@ -47,15 +46,11 @@ const filtered = computed(() =>
         .includes(search.value.trim().toLowerCase())
   )
 )
-const pages = computed(() => Math.max(1, Math.ceil(filtered.value.length / 6)))
-const rows = computed(() =>
-  filtered.value.slice((page.value - 1) * 6, page.value * 6)
-)
+const { page, rows, total } = useTablePagination(filtered)
 watch(eligible, (items) => {
   if (!items.some((item) => item.id === selectedId.value))
     selectedId.value = items[0]?.id ?? ''
 })
-watch(pages, (last) => { page.value = Math.min(page.value, last) })
 watch([filter, search], () => {
   page.value = 1
 })
@@ -298,26 +293,7 @@ watch(receipt, () => { receiptError.value = '' })
             </table>
             <AdminEmpty v-else />
           </div>
-          <div class="admin-pagination">
-            <span>{{ filtered.length }} reservasi</span>
-            <div>
-              <button
-                aria-label="Transaksi sebelumnya"
-                :disabled="page === 1"
-                @click="page--"
-              >
-                <UIcon name="i-lucide-chevron-left" />
-              </button>
-              <span>{{ page }} / {{ pages }}</span>
-              <button
-                aria-label="Transaksi berikutnya"
-                :disabled="page >= pages"
-                @click="page++"
-              >
-                <UIcon name="i-lucide-chevron-right" />
-              </button>
-            </div>
-          </div>
+          <AdminPagination v-model="page" :total="total" />
           <div class="admin-alert warm">
             <UIcon name="i-lucide-shield-check" />
             <p>

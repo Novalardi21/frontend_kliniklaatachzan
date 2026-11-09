@@ -2,6 +2,28 @@
 const catalog = usePublicCatalog()
 await catalog.ready
 const dialog = ref<'booking' | 'status' | null>(null)
+const landingMain = ref<HTMLElement>()
+let scrollObserver: IntersectionObserver | undefined
+
+onMounted(() => {
+  if (!landingMain.value || !('IntersectionObserver' in window) ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  scrollObserver = new IntersectionObserver((entries, observer) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue
+      entry.target.classList.add('landing-scroll-enter')
+      observer.unobserve(entry.target)
+    }
+  })
+
+  for (const section of landingMain.value.children) {
+    if (section.getBoundingClientRect().top >= window.innerHeight)
+      scrollObserver.observe(section)
+  }
+})
+onBeforeUnmount(() => scrollObserver?.disconnect())
+
 async function openBooking(packageId?: string) {
   await navigateTo({
     path: '/booking',
@@ -13,7 +35,7 @@ async function openBooking(packageId?: string) {
   <div>
     <a class="skip-link" href="#main">Langsung ke konten</a>
     <LandingHeader @book="openBooking()" @check="dialog = 'status'" />
-    <main id="main" class="landing-main">
+    <main id="main" ref="landingMain" class="landing-main">
       <LandingHero @book="openBooking()" />
       <LandingPackages @select="openBooking" />
       <LandingBookingSteps @book="openBooking()" />
@@ -57,3 +79,18 @@ async function openBooking(packageId?: string) {
     />
   </div>
 </template>
+
+<style scoped>
+@media (prefers-reduced-motion: no-preference) {
+  .landing-main > :deep(.landing-scroll-enter) {
+    animation: landing-scroll-in 450ms ease-out;
+  }
+}
+
+@keyframes landing-scroll-in {
+  from {
+    opacity: 0.55;
+    transform: translateY(16px);
+  }
+}
+</style>

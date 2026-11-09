@@ -2254,19 +2254,34 @@
   padding-top: 40px;
 }
 .admin-login-form {
-  padding: 49px 42px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 42px;
 }
-.admin-login-form > h2 {
+.admin-login-fields,
+.admin-login-form > footer {
+  width: min(100%, 450px);
+  margin-inline: auto;
+}
+.admin-login-fields {
+  margin-block: auto;
+}
+.admin-login-fields > h2 {
   font-size: 29px;
   font-weight: 600;
   line-height: 1.4;
   letter-spacing: -1px;
-  margin-top: 10px;
+  margin-top: 16px;
 }
-.admin-login-form > p {
+.admin-login-fields > p {
   color: #747d8b;
-  font-size: 11px;
-  margin-top: 9px;
+  font-size: 12px;
+  margin-top: 8px;
+  margin-bottom: 26px;
+}
+.admin-login-fields > .admin-text-link {
+  margin-top: 16px;
 }
 .admin-quick-access {
   background: #f5f5f4;
@@ -2358,38 +2373,15 @@
 .admin-login .admin-form > .admin-split {
   align-items: center;
 }
-.admin-login-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 13px;
-  padding: 17px;
-  background: #f5f5f4;
-  border-radius: 12px;
-  margin-top: 25px;
-}
-.admin-login-note > .iconify {
-  color: #806348;
-  font-size: 25px;
-  flex-shrink: 0;
-}
-.admin-login-note strong {
-  font-size: 11px;
-  font-weight: 600;
-}
-.admin-login-note p {
-  font-size: 10px;
-  line-height: 1.9;
-  color: #747d8b;
-  margin-top: 5px;
-}
 .admin-login-form > footer {
-  font-size: 8px;
+  font-size: 10px;
   color: #747d8b;
   line-height: 1.9;
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  margin-top: 25px;
+  border-top: 1px solid #eeebe7;
+  padding-top: 14px;
 }
 @media (min-width: 1600px) {
   .admin-content {
@@ -2699,7 +2691,7 @@
   .admin-login-form {
     padding: 30px;
   }
-  .admin-login-form > h2 {
+  .admin-login-fields > h2 {
     font-size: 27px;
   }
 }
@@ -2980,10 +2972,10 @@
   .admin-login-form {
     padding: 26px 22px;
   }
-  .admin-login-form > h2 {
+  .admin-login-fields > h2 {
     font-size: 25px;
   }
-  .admin-login-form > .admin-split {
+  .admin-login-fields > .admin-split {
     flex-wrap: wrap;
     gap: 8px;
   }
@@ -2991,9 +2983,6 @@
     align-items: start;
     flex-direction: column;
     gap: 8px;
-  }
-  .admin-login-note {
-    padding: 15px;
   }
   .admin-login-form footer {
     flex-direction: column;

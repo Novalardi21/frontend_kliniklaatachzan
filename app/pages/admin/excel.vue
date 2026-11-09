@@ -15,6 +15,11 @@ const restoreOpen = ref(false)
 const restoreId = ref('')
 const fileError = ref('')
 const rows = computed(() => getSheetRows(data.value, selectedSheet.value.name))
+const { page: previewPage, rows: previewRows, total: previewTotal } =
+  useTablePagination(rows, 8)
+const { page: logPage, rows: logRows, total: logTotal } =
+  useTablePagination(() => data.value.syncLogs)
+watch([selectedSheet, previewOpen], () => { previewPage.value = 1 })
 const sheetCounts = computed(() =>
   Object.fromEntries(
     sheetSchema.map((sheet) => [
@@ -228,7 +233,7 @@ function restore() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="log in data.syncLogs" :key="log.id">
+                <tr v-for="log in logRows" :key="log.id">
                   <td>{{ dateTime(log.at) }}</td>
                   <td>{{ log.actor }}</td>
                   <td>{{ log.rows }} baris</td>
@@ -238,6 +243,7 @@ function restore() {
               </tbody>
             </table>
           </div>
+          <AdminPagination v-model="logPage" :total="logTotal" />
         </section>
       </div>
       <aside class="admin-support-column">
@@ -308,7 +314,7 @@ function restore() {
     <AdminModal
       v-model="previewOpen"
       :title="`Pratinjau ${selectedSheet.name}`"
-      description="Menampilkan maksimal 8 baris dari dataset contoh."
+      description="Menampilkan 8 baris per halaman."
     >
       <div class="admin-table-wrap">
         <table v-if="rows.length" class="admin-table">
@@ -320,7 +326,7 @@ function restore() {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in rows.slice(0, 8)" :key="index">
+            <tr v-for="(row, index) in previewRows" :key="index">
               <td v-for="column in selectedSheet.columns" :key="column">
                 {{ row[column] }}
               </td>
@@ -333,6 +339,7 @@ function restore() {
           description="Data akan muncul setelah ada aktivitas terkait."
         />
       </div>
+      <AdminPagination v-model="previewPage" :total="previewTotal" :page-size="8" />
       <button
         class="admin-button secondary admin-full"
         @click="downloadSheet(selectedSheet.name)"

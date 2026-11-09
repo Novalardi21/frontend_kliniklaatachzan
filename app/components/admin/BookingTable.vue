@@ -21,7 +21,6 @@ const search = ref(
 const status = ref('all')
 const date = ref('')
 const packageId = ref('')
-const page = ref(1)
 const perPage = computed(() => (props.compact ? 4 : 6))
 watch(
   () => route.query.search,
@@ -40,20 +39,9 @@ const filtered = computed(() =>
         .includes(search.value.toLowerCase().trim())
   )
 )
-const pages = computed(() =>
-  Math.max(1, Math.ceil(filtered.value.length / perPage.value))
-)
-const visibleRows = computed(() =>
-  filtered.value.slice(
-    (page.value - 1) * perPage.value,
-    page.value * perPage.value
-  )
-)
+const { page, rows: visibleRows, total } = useTablePagination(filtered, perPage)
 watch([search, status, date, packageId], () => {
   page.value = 1
-})
-watch(pages, (value) => {
-  if (page.value > value) page.value = value
 })
 function reset() {
   search.value = ''
@@ -220,38 +208,6 @@ function exportRows() {
       </table>
       <AdminEmpty v-else />
     </div>
-    <div class="admin-pagination">
-      <span>
-        {{ filtered.length ? (page - 1) * perPage + 1 : 0 }}–{{
-          Math.min(page * perPage, filtered.length)
-        }}
-        dari {{ filtered.length }} reservasi
-      </span>
-      <div>
-        <button
-          aria-label="Halaman sebelumnya"
-          :disabled="page === 1"
-          @click="page--"
-        >
-          <UIcon name="i-lucide-chevron-left" />
-        </button>
-        <button
-          v-for="number in pages"
-          :key="number"
-          :class="{ active: number === page }"
-          :aria-label="`Halaman ${number}`"
-          @click="page = number"
-        >
-          {{ number }}
-        </button>
-        <button
-          aria-label="Halaman berikutnya"
-          :disabled="page === pages"
-          @click="page++"
-        >
-          <UIcon name="i-lucide-chevron-right" />
-        </button>
-      </div>
-    </div>
+    <AdminPagination v-model="page" :total="total" :page-size="perPage" />
   </section>
 </template>
