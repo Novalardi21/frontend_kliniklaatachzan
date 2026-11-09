@@ -69,6 +69,25 @@ async function submit(action: 'confirm' | 'propose' | 'reject') {
     saving.value = false
   }
 }
+
+async function complete() {
+  if (saving.value) return
+  saving.value = true
+  message.value = ''
+  try {
+    await $fetch('/api/admin/booking-complete', {
+      method: 'POST',
+      body: { code: props.booking.code }
+    })
+    emit('updated')
+  } catch (error) {
+    message.value =
+      (error as { data?: { data?: { message?: string } } }).data?.data
+        ?.message ?? 'Status layanan belum dapat disimpan.'
+  } finally {
+    saving.value = false
+  }
+}
 </script>
 <template>
   <div class="admin-card admin-review-detail">
@@ -206,6 +225,15 @@ async function submit(action: 'confirm' | 'propose' | 'reject') {
         </button>
       </form>
     </template>
+    <div v-else-if="booking.status === 'confirmed'" class="admin-form">
+      <p class="admin-hint">Tandai selesai setelah layanan diberikan agar tagihan muncul di kasir.</p>
+      <button type="button" class="admin-button success" :disabled="saving" @click="complete">
+        {{ saving ? 'Menyimpan…' : 'Tandai Layanan Selesai' }}
+      </button>
+    </div>
+    <NuxtLink v-else-if="booking.status === 'completed'" to="/admin/payments" class="admin-button secondary">
+      Buka Pembayaran di Tempat
+    </NuxtLink>
     <p v-if="message" class="admin-alert error" role="alert">{{ message }}</p>
   </div>
 </template>

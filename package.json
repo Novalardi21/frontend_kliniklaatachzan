@@ -26,6 +26,7 @@
     "@tailwindcss/postcss": "^4.3.3",
     "ant-design-vue": "^4.2.6",
     "better-sqlite3": "^13.0.3",
+    "jspdf": "^4.2.1",
     "nuxt": "^4.6.3",
     "nuxt-ai-ready": "3.4.0",
     "nuxt-aos": "1.2.6",

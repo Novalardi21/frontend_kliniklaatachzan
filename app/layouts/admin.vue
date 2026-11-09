@@ -6,7 +6,7 @@ const persistentMaster = computed(() => route.path === '/admin/master-data')
 const liveDashboard = computed(
   () => route.path === '/admin' || route.path === '/admin/'
 )
-const liveRecords = computed(() => liveDashboard.value || ['/admin/bookings', '/admin/schedule', '/admin/notifications'].includes(route.path))
+const liveRecords = computed(() => liveDashboard.value || ['/admin/bookings', '/admin/schedule', '/admin/payments', '/admin/notifications'].includes(route.path))
 const { data: dashboardSummary } = useNuxtData<{
   pending: number
   queued: number
