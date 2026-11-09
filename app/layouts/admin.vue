@@ -12,13 +12,6 @@ const { data: dashboardSummary } = useNuxtData<{
   queued: number
   failed: number
 }>('clinic-admin-dashboard')
-const modeLabel = computed(() =>
-  liveRecords.value
-    ? 'Operasional · PostgreSQL'
-    : persistentMaster.value
-      ? 'Master Data · PostgreSQL'
-      : 'Pratinjau · Data contoh'
-)
 const { name, label, logout: endSession } = useAdminSession()
 const { data, pending, notices } = useAdminData()
 const search = ref('')
@@ -64,10 +57,6 @@ async function searchBookings() {
       <div class="admin-sidebar-brand">
         <LandingBrand />
         <span>PORTAL OPERASIONAL KLINIK</span>
-      </div>
-      <div class="admin-mode-tag">
-        <UIcon name="i-lucide-badge-check" />
-        {{ modeLabel }}
       </div>
       <small class="admin-nav-label">NAVIGASI OPERASIONAL</small>
       <nav aria-label="Navigasi operasional">
@@ -132,10 +121,6 @@ async function searchBookings() {
             <UIcon name="i-lucide-arrow-right" />
           </button>
         </form>
-        <span class="admin-topbar-tag">
-          <span class="status-dot" />
-          {{ modeLabel }}
-        </span>
         <NuxtLink
           to="/admin/notifications"
           class="admin-icon-button admin-bell"
